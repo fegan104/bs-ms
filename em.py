@@ -13,7 +13,7 @@ heads_prob = [0.15, 0.4, 0.8]
 #The probability of selecting the coin
 pick_prob = [0.2, 0.5, 0.3]
 #The number of folds for k-cross fold validation
-k = 10
+K = 10
 
 def em_single(priors, observations, num_coins):
     """Performs a single EM step
@@ -106,9 +106,9 @@ def f1(precision, recall):
 
     Args:
         precison (float): The number of correct positive results
-             divided by the number of all positive results.
+            divided by the number of all positive results.
         recall (float): The number of correct positive results divided by the
-             number of positive results that should have been returned.
+            number of positive results that should have been returned.
 
     Returns:
         A weighted value for determining the effectiveness of the results form clustering.
@@ -141,12 +141,18 @@ with open("eggs.csv") as file:
         observations.append(line)
 
 #Run EM with 1-10 coins (clusters)
-cross_folds = cross_fold(k, observations)
+cross_folds = cross_fold(K, observations)
+f1_values = [[] for r in xrange(10)]
 for n in xrange(1, 11):
-    for i in xrange(k):
-        fold = cross_fold.pop(i)
-
-    print em(observations, make_probs(n),  n)
+    for i in xrange(K):
+        test_fold = cross_folds.pop(i) #Separate test fold & training set
+        p = random.random()
+        r = random.random()
+        f1_values[n-1].append(f1(p, r))
+        cross_folds.insert(i, test_fold) #Put back test fold
+    f1_values[n-1] = sum(f1_values[n-1])/len(f1_values[n-1])
+    # print em(observations, make_probs(n),  n)
+print f1_values
 
 # print "Number of coins = %d" % num_coins
 # for i in range(len(heads_prob)):
